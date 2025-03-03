@@ -164,8 +164,8 @@
        }
 
        if (type === "grow") {
-        window.open("../../game.html", "_self");
-       }
+        window.open("https://digitalproductstudio.github.io/werkstuk-infodag-ar-showcase/game.html", "_self");
+    }
 
        // ✅ Reset cooldown after 1 second (prevent multiple clicks on the same bubble)
        setTimeout(() => {
