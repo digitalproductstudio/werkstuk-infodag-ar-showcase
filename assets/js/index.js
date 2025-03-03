@@ -164,7 +164,7 @@
        }
 
        if (type === "grow") {
-        let gameUrl = "../../game.html";
+        let gameUrl = "./game.html";
         console.log("Navigating to:", gameUrl);
         window.open(gameUrl, "_self");
     }
