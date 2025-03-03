@@ -34,7 +34,7 @@
            {
                element: "#bubble-grow",
                popover: {
-                   title: "Size Increase",
+                   title: "Ball Invader",
                    description: "Collect this bubble to play Ball Invader.",
                    side: "top",
                    align: "start"
