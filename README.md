@@ -22,3 +22,5 @@ IMD AR Showcase is an interactive web application that utilizes **MediaPipe** an
 ### Author
 - **Karim Matar**
 - **Mohamad Matar**
+
+### App link: [IMD AR Showcase](https://digitalproductstudio.github.io/werkstuk-infodag-ar-showcase/)

@@ -164,7 +164,7 @@
        }
 
        if (type === "grow") {
-        window.open("/game.html", "_self");
+        window.open("/werkstuk-infodag-ar-showcase/game.html", "_self");
 
        }
 
