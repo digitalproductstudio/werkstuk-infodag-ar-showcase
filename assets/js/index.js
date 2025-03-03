@@ -164,15 +164,8 @@
        }
 
        if (type === "grow") {
-           bubble.style.transition = "transform 1s ease, width 1s ease, height 1s ease";
-           bubble.style.transform = "scale(1.1)";
-           bubble.style.width = "120px";
-           bubble.style.height = "120px";
-           setTimeout(() => {
-               bubble.style.transform = "scale(1)";
-               bubble.style.width = "80px";
-               bubble.style.height = "80px";
-           }, 1000);
+        window.open("/game.html", "_self");
+
        }
 
        // ✅ Reset cooldown after 1 second (prevent multiple clicks on the same bubble)

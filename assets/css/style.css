@@ -1,0 +1,181 @@
+body {
+  text-align: center;
+  font-family: Arial, sans-serif;
+  background: radial-gradient(circle, #1e3c72, #2a5298);
+  color: white;
+  overflow: hidden;
+  margin: 0;
+  padding: 0;
+}
+
+/* Title Header */
+.header {
+  font-size: 5vw; /* Scale font size dynamically */
+  font-weight: bold;
+  margin-top: 48px;
+  margin-bottom: 48px;
+}
+
+/* Hide Video Element */
+#video {
+  display: none;
+}
+
+/* Responsive Game Canvas */
+#canvas {
+  border: 2px solid white;
+  background: rgba(0, 0, 0, 0.3);
+  position: absolute;
+  left: 50%;
+  top: 21.5%;
+  transform: translateX(-50%);
+  width: 90vw; /* Makes canvas scale properly on all screens */
+  height: 70vh;
+  max-width: 640px; /* Ensures it doesn't exceed standard game size */
+  max-height: 480px;
+}
+
+/* Score & Timer */
+#score,
+#timer {
+  font-size: 3vw; /* Makes text size scale with screen */
+  position: absolute;
+  top: 5px;
+  padding: 8px;
+  background: rgba(0, 0, 0, 0.5);
+  border-radius: 8px;
+}
+
+#score {
+  left: 5px;
+}
+
+#timer {
+  right: 5px;
+}
+
+/* Game Over Screen */
+#gameOver {
+  display: none;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: rgba(0, 0, 0, 0.8);
+  padding: 4vw;
+  border-radius: 10px;
+  font-size: 3.5vw; /* Scales font size with screen */
+  text-align: center;
+  width: 80vw;
+  max-width: 400px;
+}
+
+/* Button Styling */
+button {
+  font-size: 2.5vw;
+  padding: 10px;
+  background: #ff5722;
+  color: white;
+  border-radius: 5px;
+  cursor: pointer;
+  width: 60%;
+  max-width: 200px;
+  margin-top: 10px;
+}
+
+button:hover {
+  background: #f44336;
+}
+
+/* Ensures proper scaling for mobile devices */
+@media (max-width: 768px) {
+  #canvas {
+    width: 95vw;
+    height: 75vh;
+  }
+
+  #gameOver {
+    font-size: 4vw;
+    padding: 5vw;
+  }
+
+  button {
+    font-size: 3vw;
+  }
+}
+
+@media (max-width: 480px) {
+  .header {
+    font-size: 6vw;
+  }
+
+  #canvas {
+    width: 98vw;
+    height: 80vh;
+  }
+
+  #score,
+  #timer {
+    font-size: 4vw;
+  }
+
+  #gameOver {
+    font-size: 5vw;
+    padding: 6vw;
+  }
+
+  button {
+    font-size: 4vw;
+    width: 80%;
+  }
+}
+
+/* General button styling */
+.back,
+.imd {
+  padding: 12px 20px;
+  background: rgba(0, 0, 0, 0.6); /* Slightly darker for better contrast */
+  position: absolute;
+  bottom: 15px;
+  font-size: 2vw;
+  color: white;
+  cursor: pointer;
+  border-radius: 8px; /* Smooth corners */
+  text-decoration: none;
+  transition: all 0.3s ease-in-out; /* Smooth transitions */
+  font-weight: bold;
+}
+
+/* Positioning */
+.back {
+  left: 15px;
+}
+
+.imd {
+  right: 15px;
+}
+
+/* Hover effect */
+.back:hover,
+.imd:hover {
+  color: #f44336;
+  background: rgba(0, 0, 0, 0.8);
+}
+
+/* Ensure mobile responsiveness */
+@media (max-width: 768px) {
+  .back,
+  .imd {
+    font-size: 3vw;
+    padding: 10px 15px;
+  }
+}
+
+@media (max-width: 480px) {
+  .back,
+  .imd {
+    font-size: 4vw;
+    padding: 8px 12px;
+    bottom: 10px;
+  }
+}
