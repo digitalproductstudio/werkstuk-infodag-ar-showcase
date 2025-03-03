@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IMD AR Showcase</title>
+
+    <!-- AR.js Library -->
+    <script src="https://aframe.io/releases/1.6.0/aframe.min.js"></script>
+    <script src="https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar.js"></script>
+
+    <!-- Driver.js for onboarding -->
+    <script src="https://cdn.jsdelivr.net/npm/driver.js@latest/dist/driver.js.iife.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/driver.js@latest/dist/driver.css"/>
+    <link rel="stylesheet" href="./styles/index.css">
+
+</head>
+<body>
+
+    <!-- Welkomstpagina -->
+    <div id="welcome-screen">
+        <h1>Welkom bij de IMD AR Showcase</h1>
+        <p>Ontdek de wereld van Interactive Multimedia Design in Augmented Reality! Klik op 'Start' om te beginnen.</p>
+        <button class="start-btn" onclick="startExperience()">Start</button>
+    </div>
+
+    <!-- AR Scene (wordt verborgen tot gebruiker start) -->
+    <div id="ar-container">
+        <a-scene embedded arjs>
+            <!-- AR Marker -->
+            <a-marker preset="hiro">
+                <a-box position="0 0.5 0" color="blue" id="ar-object"></a-box>
+            </a-marker>
+            <a-entity camera></a-entity>
+        </a-scene>
+    </div>
+
+    <script>
+        const driver = window.driver.js.driver;
+
+        const driverObj = driver({
+            showProgress: true,
+            opacity: 0.75,
+            steps: [
+                {
+                    element: "#ar-container",
+                    popover: {
+                        title: "Welkom bij de AR-ervaring!",
+                        description: "Richt je camera op de marker om de 3D-content te bekijken.",
+                        side: "top",
+                        align: 'start'
+                    }
+                },
+                {
+                    element: "#ar-object",
+                    popover: {
+                        title: "Interactieve 3D-content",
+                        description: "Dit is een AR-object. Tik erop om meer te ontdekken!",
+                        side: "right",
+                        align: 'start'
+                    }
+                },
+                {
+                    popover: {
+                        title: "Veel plezier!",
+                        description: "Je bent klaar om IMD in AR te ontdekken!",
+                    }
+                }
+            ]
+        });
+
+        function startExperience() {
+            // Verberg welkomstscherm
+            document.getElementById("welcome-screen").style.display = "none";
+
+            // Toon AR-scène
+            document.getElementById("ar-container").style.display = "block";
+
+            // Start onboarding
+            setTimeout(() => {
+                driverObj.drive();
+            }, 500);
+        }
+    </script>
+
+</body>
+</html>
