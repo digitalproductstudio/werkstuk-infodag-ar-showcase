@@ -3,35 +3,40 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>IMD AR/XR Experience</title>
+    <title>IMD AR Showcase</title>
 
-    <!-- MediaPipe voor handtracking -->
     <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/driver.js@latest/dist/driver.js.iife.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/driver.js@latest/dist/driver.css"/>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="./assets/css/index.css">
+    <link rel="icon" href="./assets/favicon/favicon.ico" type="image/x-icon">
 
-    <!-- Three.js voor 3D-weergave -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-
-    <!-- CSS -->
-    <link rel="stylesheet" href="style.css">
 </head>
-<body>
+<body class="m-0 font-sans bg-black">
 
-    <!-- Welkomstscherm -->
-    <div id="welcome-screen">
-        <h1>🚀 Welkom bij de IMD XR Experience</h1>
-        <p>Gebruik je handbewegingen om de interactieve 3D-omgeving te verkennen.</p>
-        <button onclick="startExperience()">Start Nu</button>
+    <!-- Welcome Screen -->
+    <div id="welcome-screen" class="fixed top-0 left-0 w-full h-full bg-gradient-to-br from-gray-900 via-gray-800 to-black text-white flex flex-col items-center justify-center text-center z-50 opacity-0 animate-fadeIn">
+        <h1 class="text-4xl font-bold mb-4 tracking-wide">👋 Welcome to the IMD AR Showcase</h1>
+        <p class="text-lg max-w-lg px-6 text-gray-300">
+            Scan the area, move your hand, and collect the bubbles to interact!
+        </p>
+        <p class="text-lg mb-6 max-w-lg px-6 text-gray-300">Developed by: Karim and Mohamad Matar</p>
+        <button class="px-8 py-3 text-lg font-semibold bg-blue-500 text-white rounded-full shadow-lg hover:bg-blue-600 hover:scale-105 transition-transform duration-300" onclick="startExperience()">
+            🚀 Start Experience
+        </button>
     </div>
+    <video id="camera-container" autoplay playsinline></video>
+    <div id="cursor"></div>
 
-    <!-- 3D-scene -->
-    <div id="3d-container"></div>
+    <!-- Floating Bubbles -->
+    <div id="bubble-link" class="bubble bg-red-500" style="top: 20%; left: 10%;" data-type="link">🌐</div>
+    <div id="bubble-color" class="bubble bg-green-500" style="top: 40%; left: 70%;" data-type="color">🎨</div>
+    <div id="bubble-rotate" class="bubble bg-blue-500" style="top: 60%; left: 30%;" data-type="rotate">🔄</div>
+    <div id="bubble-grow" class="bubble bg-yellow-500" style="top: 80%; left: 80%;" data-type="grow">🎮</div>
 
-    <!-- Video-feed voor handtracking -->
-    <video id="camera-feed" autoplay playsinline></video>
-
-    <script src="script.js"></script>
-
+    <script src="./assets/js/index.js"></script>
 </body>
 </html>
