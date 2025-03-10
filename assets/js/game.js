@@ -10,7 +10,7 @@ const driverObj = window.driver.js.driver({
     steps: [
         { popover: { 
             title: "Welcome to Ball Invader", 
-            description: "Use your voice to Reload by saying Reload, Restart or Play Again to play it Again, Reset to put the timer back in 20, Say Home to go back to the main show page, Say IMD or Join to go to the IMD website.", 
+            description: "Use your voice to Reload by saying Reload, Restart or Play Again to play it Again, Reset to put the timer back in 20, Say Home to go back to the main show page, Say IMD or Join to go to the IMD website. You can also hover your hand over the 'Reload' text to reload bullets!", 
             side: "top", 
             align: "start" 
         } }
@@ -44,6 +44,11 @@ let balls = [], bullets = [], explosions = [],
     lastShootTime = 0, score = 0, timeLeft = 20, gameActive = true,
     timerInterval, handClosed = false;
 
+// Hover timer and tracking variables
+let reloadHoverTimer = null;
+let isHovering = false;
+let hoverIndicator = 0; // For visual feedback during hover
+
 const CONFIG = {
     ballSpawnInterval: 1000, 
     minBallSpeed: 1.5, 
@@ -54,7 +59,8 @@ const CONFIG = {
     cursorRadius: 10,
     shootCooldown: 300, 
     multiDirectionBullets: 10, 
-    gameTime: 20
+    gameTime: 20,
+    hoverReloadTime: 600 // Time required to hover for reload (ms)
 };
 
 const DIRECTIONS = ["top", "right", "bottom", "left"];
@@ -90,6 +96,15 @@ const reloadBullets = () => {
     bulletDisplay.style.cursor = 'default';
     bulletDisplay.style.textDecoration = 'none';
     bulletDisplay.onclick = null;
+    
+    // Reset hover tracking
+    isHovering = false;
+    hoverIndicator = 0;
+    if (reloadHoverTimer) {
+        clearTimeout(reloadHoverTimer);
+        reloadHoverTimer = null;
+    }
+    
     playSound('./assets/sounds/reload.mp3');
 };
 
@@ -132,12 +147,96 @@ const updateCursor = results => {
 
         drawCursor();
         shootBullet();
+        
+        // Check if cursor is hovering over the "Reload" text when bullet count is 0
+        if (bulletCount === 0) {
+            checkCursorOverReload();
+        }
     }
 
     updateBalls();
     updateBullets();
     drawExplosions();
     checkBallHitsCursor();
+    
+    // Draw hover progress indicator if currently hovering
+    if (isHovering && bulletCount === 0) {
+        drawHoverIndicator();
+    }
+};
+
+/* ---------------------------
+   Draw Hover Progress Indicator
+--------------------------- */
+const drawHoverIndicator = () => {
+    const bulletRect = bulletDisplay.getBoundingClientRect();
+    const canvasRect = canvas.getBoundingClientRect();
+    
+    // Convert screen coordinates to canvas coordinates
+    const canvasX = ((bulletRect.left + bulletRect.width/2) - canvasRect.left) * (canvas.width / canvasRect.width);
+    const canvasY = (bulletRect.bottom - canvasRect.top + 15) * (canvas.height / canvasRect.height);
+    
+    // Draw progress bar background
+    ctx.fillStyle = "rgba(0, 0, 0, 0.5)";
+    ctx.fillRect(canvasX - 25, canvasY, 50, 5);
+    
+    // Draw progress
+    ctx.fillStyle = "rgba(0, 255, 0, 0.8)";
+    const progress = (hoverIndicator / CONFIG.hoverReloadTime) * 50;
+    ctx.fillRect(canvasX - 25, canvasY, progress, 5);
+};
+
+/* ---------------------------
+   Check Cursor Over Reload
+--------------------------- */
+const checkCursorOverReload = () => {
+    // Get the position and dimensions of the bulletDisplay element
+    const bulletRect = bulletDisplay.getBoundingClientRect();
+    
+    // Convert canvas coordinates to screen coordinates
+    const canvasRect = canvas.getBoundingClientRect();
+    const screenX = (cursor.x / canvas.width) * canvasRect.width + canvasRect.left;
+    const screenY = (cursor.y / canvas.height) * canvasRect.height + canvasRect.top;
+    
+    // Check if cursor is over the Reload text
+    if (screenX >= bulletRect.left && screenX <= bulletRect.right &&
+        screenY >= bulletRect.top && screenY <= bulletRect.bottom) {
+        
+        // Set hovering flag for visual feedback
+        isHovering = true;
+        
+        // Increase hover timer
+        if (!reloadHoverTimer) {
+            const startTime = Date.now();
+            hoverIndicator = 0;
+            
+            // Use requestAnimationFrame for smoother visual feedback
+            const updateHover = () => {
+                const elapsed = Date.now() - startTime;
+                hoverIndicator = elapsed;
+                
+                if (elapsed >= CONFIG.hoverReloadTime) {
+                    // Time threshold reached, reload bullets
+                    reloadBullets();
+                    reloadHoverTimer = null;
+                } else if (isHovering) {
+                    // Keep updating if still hovering
+                    reloadHoverTimer = requestAnimationFrame(updateHover);
+                }
+            };
+            
+            reloadHoverTimer = requestAnimationFrame(updateHover);
+        }
+    } else {
+        // Clear hover state if cursor moves away
+        isHovering = false;
+        hoverIndicator = 0;
+        
+        if (reloadHoverTimer) {
+            cancelAnimationFrame(reloadHoverTimer);
+            reloadHoverTimer = null;
+        }
+    }
 };
 
 const isHandClosed = landmarks =>
@@ -167,10 +266,18 @@ const fireMultiBullets = () => {
          Draw Cursor
 --------------------------- */
 const drawCursor = () => {
+    // Draw cursor glow
+    ctx.shadowBlur = 15;
+    ctx.shadowColor = "rgba(255, 255, 0, 0.7)";
+    
+    // Draw cursor
     ctx.fillStyle = "yellow";
     ctx.beginPath();
     ctx.arc(cursor.x, cursor.y, CONFIG.cursorRadius, 0, 2 * Math.PI);
     ctx.fill();
+    
+    // Reset shadow effects
+    ctx.shadowBlur = 0;
 };
 
 /* ---------------------------
@@ -189,12 +296,29 @@ const shootBullet = () => {
             bulletDisplay.style.cursor = 'pointer';
             bulletDisplay.style.textDecoration = 'underline';
             bulletDisplay.onclick = reloadBullets;
+            
+            // Add visual hint for hover to reload
+            const hint = document.createElement('div');
+            hint.textContent = '(Hover to reload)';
+            hint.style.fontSize = '12px';
+            hint.style.color = 'orange';
+            hint.style.position = 'absolute';
+            hint.style.left = (bulletDisplay.offsetLeft) + 'px';
+            hint.style.top = (bulletDisplay.offsetTop + bulletDisplay.offsetHeight + 15) + 'px';
+            hint.id = 'hover-hint';
+            if (!document.getElementById('hover-hint')) {
+                document.body.appendChild(hint);
+            }
         } else {
             bulletDisplay.innerText = `Bullets: ${bulletCount}`;
             bulletDisplay.style.color = 'white';
             bulletDisplay.style.cursor = 'default';
             bulletDisplay.style.textDecoration = 'none';
             bulletDisplay.onclick = null;
+            
+            // Remove hover hint if exists
+            const hint = document.getElementById('hover-hint');
+            if (hint) hint.remove();
         }
 
         playSound('./assets/sounds/pew.mp3');
@@ -204,8 +328,11 @@ const shootBullet = () => {
 /* ---------------------------
       Play Sound Function
 --------------------------- */
-const playSound = src =>
-    new Audio(src).play().catch(e => console.warn('Sound error:', e));
+const playSound = src => {
+    const sound = new Audio(src);
+    sound.volume = 0.7; // Slightly reduce volume
+    sound.play().catch(e => console.warn('Sound error:', e));
+};
 
 /* ---------------------------
          Update Bullets
@@ -215,9 +342,17 @@ const updateBullets = () => {
     bullets.forEach((bullet, i) => {
         bullet.x += bullet.dx;
         bullet.y += bullet.dy;
+        
+        // Add bullet glow effect
+        ctx.shadowBlur = 10;
+        ctx.shadowColor = "rgba(0, 255, 255, 0.7)";
+        
         ctx.beginPath();
         ctx.arc(bullet.x, bullet.y, CONFIG.bulletRadius, 0, 2 * Math.PI);
         ctx.fill();
+        
+        // Reset shadow for next drawing operations
+        ctx.shadowBlur = 0;
 
         // Remove bullets off screen
         if (bullet.y < -CONFIG.bulletRadius ||
@@ -282,7 +417,7 @@ const checkBulletCollision = () => {
     balls.forEach((ball, i) => {
         bullets.forEach((bullet, j) => {
             if (Math.hypot(ball.x - bullet.x, ball.y - bullet.y) < ball.radius + CONFIG.bulletRadius) {
-                explosions.push({ x: ball.x, y: ball.y, size: ball.radius });
+                explosions.push({ x: ball.x, y: ball.y, size: ball.radius, color: "orange" });
                 balls.splice(i, 1);
                 bullets.splice(j, 1);
                 scoreDisplay.innerText = `Score: ${++score}`;
@@ -306,11 +441,19 @@ const checkBallHitsCursor = () => {
         Draw Explosions
 --------------------------- */
 const drawExplosions = () => {
-    ctx.fillStyle = "orange";
     explosions.forEach((explosion, i) => {
+        // Add glow effect to explosions
+        ctx.shadowBlur = 15;
+        ctx.shadowColor = 'rgba(255, 165, 0, 0.7)';
+        
+        ctx.fillStyle = explosion.color || "orange";
         ctx.beginPath();
         ctx.arc(explosion.x, explosion.y, explosion.size, 0, 2 * Math.PI);
         ctx.fill();
+        
+        // Reset shadow effects
+        ctx.shadowBlur = 0;
+        
         if ((explosion.size -= 0.5) <= 0) explosions.splice(i, 1);
     });
 };
@@ -321,9 +464,32 @@ const drawExplosions = () => {
 const gameOver = (death = false) => {
     gameActive = false;
     clearInterval(timerInterval);
-    if (death) playSound('./assets/sounds/death.mp3');
-    gameOverScreen.style.display = 'block';
-    finalScore.innerText = score;
+    
+    // Clean up hover elements
+    const hint = document.getElementById('hover-hint');
+    if (hint) hint.remove();
+    
+    if (death) {
+        playSound('./assets/sounds/death.mp3');
+        // Add explosion effect at cursor position
+        for (let i = 0; i < 10; i++) {
+            explosions.push({ 
+                x: cursor.x + (Math.random() - 0.5) * 30, 
+                y: cursor.y + (Math.random() - 0.5) * 30, 
+                size: 15 + Math.random() * 10,
+                color: ['orange', 'red', 'yellow'][Math.floor(Math.random() * 3)]
+            });
+        }
+        
+        // Add slight delay to show explosion before game over screen
+        setTimeout(() => {
+            gameOverScreen.style.display = 'block';
+            finalScore.innerText = score;
+        }, 500);
+    } else {
+        gameOverScreen.style.display = 'block';
+        finalScore.innerText = score;
+    }
 };
 
 /* ---------------------------
@@ -347,6 +513,14 @@ function restartGame() {
     score = 0;
     timeLeft = 20;
     gameActive = true;
+    
+    // Reset hover state
+    isHovering = false;
+    hoverIndicator = 0;
+    if (reloadHoverTimer) {
+        cancelAnimationFrame(reloadHoverTimer);
+        reloadHoverTimer = null;
+    }
 
     scoreDisplay.innerText = `Score: ${score}`;
     timerDisplay.innerText = `Time: ${timeLeft}`;
@@ -356,6 +530,10 @@ function restartGame() {
     bulletDisplay.style.cursor = 'default';
     bulletDisplay.style.textDecoration = 'none';
     bulletDisplay.onclick = null;
+    
+    // Remove hover hint if exists
+    const hint = document.getElementById('hover-hint');
+    if (hint) hint.remove();
 
     startTimer();
 }
@@ -372,6 +550,11 @@ recognition.onresult = function (event) {
     const transcript = event.results[event.results.length - 1][0].transcript.trim().toLowerCase();
     console.log("Recognized Command:", transcript);
     handleVoiceCommand(transcript);
+};
+
+// Make sure recognition restarts if it ends
+recognition.onend = function() {
+    recognition.start();
 };
 
 // Only allow non-onboarding voice commands if onboarding is finished.
