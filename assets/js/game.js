@@ -1,10 +1,39 @@
+// Flag to indicate if onboarding is still active.
+let onboardingActive = true;
+
+/* ---------------------------
+         Onboarding
+--------------------------- */
+const driverObj = window.driver.js.driver({
+    showProgress: true,
+    opacity: 0.75,
+    steps: [
+        { popover: { 
+            title: "Welcome to Ball Invader", 
+            description: "Use your voice to Reload by saying Reload, Restart or Play Again to play it Again, Reset to put the timer back in 20, Say Home to go back to the main show page, Say IMD or Join to go to the IMD website.", 
+            side: "top", 
+            align: "start" 
+        } }
+    ],
+    onDestroyed: () => {
+        // Set the flag to false once onboarding is closed,
+        // then start the game.
+        onboardingActive = false;
+        startGame();
+    }
+});
+driverObj.drive();
+
+/* ---------------------------
+         Game Variables
+--------------------------- */
 const video = document.getElementById('video'),
-    canvas = document.getElementById('canvas'),
-    ctx = canvas.getContext('2d'),
-    scoreDisplay = document.getElementById('score'),
-    timerDisplay = document.getElementById('timer'),
-    gameOverScreen = document.getElementById('gameOver'),
-    finalScore = document.getElementById('finalScore');
+      canvas = document.getElementById('canvas'),
+      ctx = canvas.getContext('2d'),
+      scoreDisplay = document.getElementById('score'),
+      timerDisplay = document.getElementById('timer'),
+      gameOverScreen = document.getElementById('gameOver'),
+      finalScore = document.getElementById('finalScore');
 
 let bulletCount = 50; 
 const bulletDisplay = document.getElementById("bullets");
@@ -16,14 +45,23 @@ let balls = [], bullets = [], explosions = [],
     timerInterval, handClosed = false;
 
 const CONFIG = {
-    ballSpawnInterval: 1000, minBallSpeed: 1.5, maxBallSpeed: 3.5,
-    ballRadius: 15, bulletRadius: 5, bulletSpeed: 5, cursorRadius: 10,
-    shootCooldown: 300, multiDirectionBullets: 10, gameTime: 20
+    ballSpawnInterval: 1000, 
+    minBallSpeed: 1.5, 
+    maxBallSpeed: 3.5,
+    ballRadius: 15, 
+    bulletRadius: 5, 
+    bulletSpeed: 5, 
+    cursorRadius: 10,
+    shootCooldown: 300, 
+    multiDirectionBullets: 10, 
+    gameTime: 20
 };
 
 const DIRECTIONS = ["top", "right", "bottom", "left"];
 
-// Spawn new ball
+/* ---------------------------
+         Ball Spawning
+--------------------------- */
 const createBall = () => {
     if (!gameActive) return;
     let direction = DIRECTIONS[Math.floor(Math.random() * 4)], x, y;
@@ -41,7 +79,9 @@ const createBall = () => {
 };
 setInterval(createBall, CONFIG.ballSpawnInterval);
 
-// Reload bullets
+/* ---------------------------
+        Reload Bullets
+--------------------------- */
 const reloadBullets = () => {
     if (bulletCount === 50) return;
     bulletCount = 50;
@@ -53,7 +93,9 @@ const reloadBullets = () => {
     playSound('./assets/sounds/reload.mp3');
 };
 
-// Timer setup
+/* ---------------------------
+        Timer Setup
+--------------------------- */
 const startTimer = () => {
     clearInterval(timerInterval);
     timerInterval = setInterval(() => {
@@ -65,25 +107,9 @@ const startTimer = () => {
     }, 1000);
 };
 
-// MediaPipe Hands setup
-const hands = new Hands({
-    locateFile: file => `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`
-});
-hands.setOptions({
-    maxNumHands: 1,
-    modelComplexity: 1,
-    minDetectionConfidence: 0.75,
-    minTrackingConfidence: 0.75
-});
-hands.onResults(results => gameActive && updateCursor(results));
-
-// Start camera
-new Camera(video, {
-    onFrame: async () => await hands.send({ image: video }),
-    width: 640,
-    height: 480
-}).start();
-
+/* ---------------------------
+      Update Cursor & Game
+--------------------------- */
 const updateCursor = results => {
     if (video.videoWidth && video.videoHeight) {
         [canvas.width, canvas.height] = [video.videoWidth, video.videoHeight];
@@ -117,7 +143,9 @@ const updateCursor = results => {
 const isHandClosed = landmarks =>
     [8, 12, 16, 20].every(i => Math.abs(landmarks[i].y - landmarks[i - 2].y) < 0.05);
 
-// Fire multi-direction bullets
+/* ---------------------------
+   Fire Multi-Direction Bullets
+--------------------------- */
 const fireMultiBullets = () => {
     if (bulletCount >= CONFIG.multiDirectionBullets) {
         for (let i = 0; i < CONFIG.multiDirectionBullets; i++) {
@@ -135,7 +163,9 @@ const fireMultiBullets = () => {
     }
 };
 
-// Draw cursor
+/* ---------------------------
+         Draw Cursor
+--------------------------- */
 const drawCursor = () => {
     ctx.fillStyle = "yellow";
     ctx.beginPath();
@@ -143,7 +173,9 @@ const drawCursor = () => {
     ctx.fill();
 };
 
-// Fire single bullet
+/* ---------------------------
+       Shoot Single Bullet
+--------------------------- */
 const shootBullet = () => {
     if (Date.now() - lastShootTime > CONFIG.shootCooldown && bulletCount > 0) {
         bullets.push({ x: cursor.x, y: cursor.y, dx: 0, dy: -CONFIG.bulletSpeed });
@@ -157,10 +189,6 @@ const shootBullet = () => {
             bulletDisplay.style.cursor = 'pointer';
             bulletDisplay.style.textDecoration = 'underline';
             bulletDisplay.onclick = reloadBullets;
-            // make it reload when tracked hand is on the top of the word
-            if (cursor.y < bulletDisplay.offsetTop + bulletDisplay.offsetHeight) {
-                reloadBullets;
-            }
         } else {
             bulletDisplay.innerText = `Bullets: ${bulletCount}`;
             bulletDisplay.style.color = 'white';
@@ -173,11 +201,15 @@ const shootBullet = () => {
     }
 };
 
-// Play audio
+/* ---------------------------
+      Play Sound Function
+--------------------------- */
 const playSound = src =>
     new Audio(src).play().catch(e => console.warn('Sound error:', e));
 
-// Update bullets
+/* ---------------------------
+         Update Bullets
+--------------------------- */
 const updateBullets = () => {
     ctx.fillStyle = "cyan";
     bullets.forEach((bullet, i) => {
@@ -191,32 +223,30 @@ const updateBullets = () => {
         if (bullet.y < -CONFIG.bulletRadius ||
             bullet.y > canvas.height + CONFIG.bulletRadius ||
             bullet.x < -CONFIG.bulletRadius ||
-            bullet.x > canvas.width + CONFIG.bulletRadius
-        ) {
+            bullet.x > canvas.width + CONFIG.bulletRadius) {
             bullets.splice(i, 1);
         }
     });
     checkBulletCollision();
 };
 
-// Draw the slimy 3D blob ball
+/* ---------------------------
+    Draw Slimy 3D Blob Balls
+--------------------------- */
 function drawBlobBall(ball) {
     const x = ball.x, y = ball.y, r = ball.radius;
     ctx.save();
     ctx.translate(x, y);
 
-    // Add a soft shadow for extra depth and blur.
     ctx.shadowBlur = 20;
     ctx.shadowColor = 'rgba(0, 0, 0, 0.5)';
 
-    // Create a radial gradient with a slimy, glossy look.
     const grad = ctx.createRadialGradient(-r * 0.3, -r * 0.3, r * 0.1, 0, 0, r);
-    grad.addColorStop(0, "rgba(120,255,120,1)"); // bright, gooey highlight
-    grad.addColorStop(0.5, "rgba(0,180,0,0.8)");  // mid-tone
-    grad.addColorStop(1, "rgba(0,100,0,0.6)");    // darker edge
+    grad.addColorStop(0, "rgba(120,255,120,1)");
+    grad.addColorStop(0.5, "rgba(0,180,0,0.8)");
+    grad.addColorStop(1, "rgba(0,100,0,0.6)");
     ctx.fillStyle = grad;
 
-    // Blob shape via Bézier curves
     ctx.beginPath();
     ctx.moveTo(r, 0);
     ctx.bezierCurveTo(r, -r * 0.5, r * 0.6, -r, 0, -r);
@@ -226,7 +256,6 @@ function drawBlobBall(ball) {
     ctx.closePath();
     ctx.fill();
 
-    // Slimy outline
     ctx.strokeStyle = "rgba(0,150,0,0.8)";
     ctx.lineWidth = 2;
     ctx.stroke();
@@ -246,7 +275,9 @@ const updateBalls = () => {
     });
 };
 
-// Bullet collision check
+/* ---------------------------
+    Bullet Collision Check
+--------------------------- */
 const checkBulletCollision = () => {
     balls.forEach((ball, i) => {
         bullets.forEach((bullet, j) => {
@@ -260,7 +291,9 @@ const checkBulletCollision = () => {
     });
 };
 
-// Check if ball hits cursor
+/* ---------------------------
+   Check Ball Hits Cursor
+--------------------------- */
 const checkBallHitsCursor = () => {
     if (balls.some(ball =>
         Math.hypot(ball.x - cursor.x, ball.y - cursor.y) < ball.radius + CONFIG.cursorRadius
@@ -269,7 +302,9 @@ const checkBallHitsCursor = () => {
     }
 };
 
-// Draw explosions
+/* ---------------------------
+        Draw Explosions
+--------------------------- */
 const drawExplosions = () => {
     ctx.fillStyle = "orange";
     explosions.forEach((explosion, i) => {
@@ -280,7 +315,9 @@ const drawExplosions = () => {
     });
 };
 
-// Game Over
+/* ---------------------------
+         Game Over
+--------------------------- */
 const gameOver = (death = false) => {
     gameActive = false;
     clearInterval(timerInterval);
@@ -289,7 +326,9 @@ const gameOver = (death = false) => {
     finalScore.innerText = score;
 };
 
-// Reset timer
+/* ---------------------------
+      Reset Timer & Restart
+--------------------------- */
 const resetTimer = () => {
     clearInterval(timerInterval);
     timeLeft = CONFIG.gameTime;
@@ -297,7 +336,6 @@ const resetTimer = () => {
     startTimer();
 };
 
-// Restart game
 function restartGame() {
     clearInterval(timerInterval);
     bulletCount = 50;
@@ -322,7 +360,9 @@ function restartGame() {
     startTimer();
 }
 
-// Voice Command Setup
+/* ---------------------------
+        Voice Commands
+--------------------------- */
 window.SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
 const recognition = new SpeechRecognition();
 recognition.continuous = true;
@@ -331,13 +371,21 @@ recognition.lang = 'en-US';
 recognition.onresult = function (event) {
     const transcript = event.results[event.results.length - 1][0].transcript.trim().toLowerCase();
     console.log("Recognized Command:", transcript);
-
     handleVoiceCommand(transcript);
 };
 
-// Handle voice commands
+// Only allow non-onboarding voice commands if onboarding is finished.
 function handleVoiceCommand(transcript) {
-    const commands = {
+    if (onboardingActive) {
+        // While onboarding is active, allow only commands to close it.
+        const onboardingCloseCommands = ["close", "stop", "end", "quit", "destroy", "exit", "next", "skip"];
+        if (onboardingCloseCommands.some(cmd => transcript.includes(cmd))) {
+            driverObj.destroy();
+        }
+        return; // Ignore any other commands while onboarding is active.
+    }
+    
+    const commands = {        
         "reload": () => reloadBullets(),
         "restart": () => window.restartGame(),
         "play again": () => window.restartGame(),
@@ -349,7 +397,7 @@ function handleVoiceCommand(transcript) {
         "main": () => (window.location.href = "./index.html"),
         "join": () => window.open("https://www.arteveldehogeschool.be/nl/opleidingen/bachelor/interactive-media-development", "_blank"),
         "school": () => window.open("https://www.arteveldehogeschool.be/nl/opleidingen/bachelor/interactive-media-development", "_blank"),
-        "imd": () => window.open("https://www.arteveldehogeschool.be/nl/opleidingen/bachelor/interactive-media-development", "_blank"),
+        "imd": () => window.open("https://www.arteveldehogeschool.be/nl/opleidingen/bachelor/interactive-media-development", "_blank")
     };
 
     for (const [command, action] of Object.entries(commands)) {
@@ -360,10 +408,31 @@ function handleVoiceCommand(transcript) {
     }
 }
 
-// Optional: restart recognition on end
-// recognition.onend = () => recognition.start();
+/* ---------------------------
+         Start Game
+--------------------------- */
+// The game will only start once the onboarding driver is closed.
+function startGame() {
+    const hands = new Hands({
+        locateFile: file => `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`
+    });
+    hands.setOptions({
+        maxNumHands: 1,
+        modelComplexity: 1,
+        minDetectionConfidence: 0.75,
+        minTrackingConfidence: 0.75
+    });
+    hands.onResults(results => gameActive && updateCursor(results));
+    
+    new Camera(video, {
+        onFrame: async () => await hands.send({ image: video }),
+        width: 640,
+        height: 480
+    }).start();
 
-// Start voice recognition & timer
+    startTimer();
+    window.restartGame = restartGame;
+}
+
+// Start voice recognition immediately.
 recognition.start();
-startTimer();
-window.restartGame = restartGame;
