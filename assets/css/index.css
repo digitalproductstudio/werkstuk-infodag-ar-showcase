@@ -9,33 +9,43 @@
   z-index: -1;
 }
 
+/* Floating bubbles */
+.bubble {
+  position: absolute;
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  font-weight: bold;
+  color: white;
+  text-align: center;
+  cursor: pointer;
+  user-select: none;
+  transition: transform 0.3s ease, background-color 0.3s ease;
+}
+
+.bubble:hover {
+  transform: scale(1.1);
+}
+
 /* Virtual Cursor */
 #cursor {
   position: absolute;
   width: 20px;
   height: 20px;
-  background: cyan;
+  background: red;
   border-radius: 50%;
   pointer-events: none;
   z-index: 10;
-  box-shadow: 0 0 10px cyan;
 }
 
-/* Interactive Panel */
-#interactive-panel {
-  position: fixed;
-  bottom: 10%;
-  left: 50%;
-  transform: translateX(-50%);
-  background: rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(10px);
-  padding: 16px;
-  border-radius: 10px;
-  text-align: center;
-  transition: opacity 0.5s ease;
+video {
+  transform: scaleX(-1);
 }
 
-/* Animation for elements */
 @keyframes fadeIn {
   from {
     opacity: 0;
@@ -50,17 +60,80 @@
   animation: fadeIn 1s ease-out forwards;
 }
 
+/* Hide all interactive elements initially */
+#camera-container,
+#cursor,
+.bubble {
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.5s ease, visibility 0.5s ease;
+}
+
+/* Slide-out animation for the welcome screen */
+@keyframes slideOut {
+  from {
+    opacity: 1;
+    transform: translateX(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateX(-100vw);
+  }
+}
+
+.slide-out {
+  animation: slideOut 0.8s ease-out forwards;
+}
+
 /* Responsive adjustments */
 @media (max-width: 768px) {
+  .bubble {
+    width: 60px;
+    height: 60px;
+    font-size: 18px;
+  }
+
   #cursor {
     width: 15px;
     height: 15px;
   }
+
+  #welcome-screen h1 {
+    font-size: 2.5rem;
+  }
+
+  #welcome-screen p {
+    font-size: 1rem;
+  }
+
+  #welcome-screen button {
+    font-size: 1rem;
+    padding: 0.5rem 1rem;
+  }
 }
 
 @media (max-width: 480px) {
+  .bubble {
+    width: 50px;
+    height: 50px;
+    font-size: 16px;
+  }
+
   #cursor {
     width: 10px;
     height: 10px;
+  }
+
+  #welcome-screen h1 {
+    font-size: 2rem;
+  }
+
+  #welcome-screen p {
+    font-size: 0.875rem;
+  }
+
+  #welcome-screen button {
+    font-size: 0.875rem;
+    padding: 0.5rem 0.75rem;
   }
 }
