@@ -7,175 +7,137 @@ body {
   margin: 0;
   padding: 0;
 }
-
-/* Title Header */
+ 
 .header {
-  font-size: 5vw; /* Scale font size dynamically */
+  font-size: 5vw;
   font-weight: bold;
-  margin-top: 48px;
-  margin-bottom: 48px;
+  margin: 40px 0;
 }
-
-/* Hide Video Element */
-#video {
-  display: none;
+ 
+#game-container {
+  position: relative;
+  margin: 0 auto;
+  width: 90vw;
+  max-width: 640px;
+  height: 480px;
 }
-
-/* Responsive Game Canvas */
+ 
 #canvas {
-  border: 2px solid white;
+  width: 100%;
+  height: 100%;
   background: rgba(0, 0, 0, 0.3);
-  position: absolute;
-  left: 50%;
-  top: 21.5%;
-  transform: translateX(-50%);
-  width: 90vw; /* Makes canvas scale properly on all screens */
-  height: 70vh;
-  max-width: 640px; /* Ensures it doesn't exceed standard game size */
-  max-height: 480px;
+  border: 3px solid #fff;
+  border-radius: 10px;
 }
-
-/* Score & Timer */
-#score,
-#timer {
-  font-size: 3vw; /* Makes text size scale with screen */
+ 
+#video-container {
   position: absolute;
-  top: 5px;
-  padding: 8px;
+  top: 10px;
+  right: 10px;
+  width: 160px;
+  border: 2px solid #fff;
   background: rgba(0, 0, 0, 0.5);
+  border-radius: 10px;
+  overflow: hidden;
+  z-index: 10;
+}
+ 
+#video {
+  width: 100%;
+  height: auto;
+  transform: scaleX(-1); /* Fix mirror view */
+}
+ 
+#score,
+#bullets,
+#timer {
+  position: absolute;
+  top: 10px;
+  font-size: 2.5vw;
+  background: rgba(0, 0, 0, 0.6);
+  padding: 6px 12px;
   border-radius: 8px;
 }
-
-#score {
-  left: 5px;
+ 
+#score,
+#bullets {
+  left: 10px;
 }
-
 #timer {
-  right: 5px;
+  right: 10px;
 }
-
-/* Game Over Screen */
+ 
 #gameOver {
   display: none;
-  position: absolute;
+  position: fixed;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  background: rgba(0, 0, 0, 0.8);
-  padding: 4vw;
+  background: rgba(0, 0, 0, 0.85);
+  padding: 30px;
   border-radius: 10px;
-  font-size: 3.5vw; /* Scales font size with screen */
   text-align: center;
-  width: 80vw;
-  max-width: 400px;
+  font-size: 1.5em;
 }
-
-/* Button Styling */
+ 
 button {
-  font-size: 2.5vw;
-  padding: 10px;
+  padding: 10px 20px;
+  font-size: 1em;
+  border: none;
+  border-radius: 8px;
   background: #ff5722;
   color: white;
-  border-radius: 5px;
   cursor: pointer;
-  width: 60%;
-  max-width: 200px;
   margin-top: 10px;
 }
-
+ 
 button:hover {
   background: #f44336;
 }
-
-/* Ensures proper scaling for mobile devices */
+ 
+.back,
+.imd {
+  padding: 10px 15px;
+  position: absolute;
+  bottom: 10px;
+  font-size: 1em;
+  background: rgba(0, 0, 0, 0.6);
+  color: white;
+  text-decoration: none;
+  border-radius: 8px;
+  transition: 0.3s;
+}
+ 
+.back {
+  left: 10px;
+}
+.imd {
+  right: 10px;
+}
+ 
+.back:hover,
+.imd:hover {
+  background: rgba(0, 0, 0, 0.8);
+  color: #f44336;
+}
+ 
 @media (max-width: 768px) {
-  #canvas {
+  #game-container {
     width: 95vw;
-    height: 75vh;
   }
-
-  #gameOver {
-    font-size: 4vw;
-    padding: 5vw;
-  }
-
-  button {
-    font-size: 3vw;
+  #video-container {
+    width: 140px;
   }
 }
-
+ 
 @media (max-width: 480px) {
   .header {
     font-size: 6vw;
   }
-
-  #canvas {
+  #game-container {
     width: 98vw;
-    height: 80vh;
   }
-
-  #score,
-  #timer {
-    font-size: 4vw;
-  }
-
-  #gameOver {
-    font-size: 5vw;
-    padding: 6vw;
-  }
-
-  button {
-    font-size: 4vw;
-    width: 80%;
-  }
-}
-
-/* General button styling */
-.back,
-.imd {
-  padding: 12px 20px;
-  background: rgba(0, 0, 0, 0.6); /* Slightly darker for better contrast */
-  position: absolute;
-  bottom: 15px;
-  font-size: 2vw;
-  color: white;
-  cursor: pointer;
-  border-radius: 8px; /* Smooth corners */
-  text-decoration: none;
-  transition: all 0.3s ease-in-out; /* Smooth transitions */
-  font-weight: bold;
-}
-
-/* Positioning */
-.back {
-  left: 15px;
-}
-
-.imd {
-  right: 15px;
-}
-
-/* Hover effect */
-.back:hover,
-.imd:hover {
-  color: #f44336;
-  background: rgba(0, 0, 0, 0.8);
-}
-
-/* Ensure mobile responsiveness */
-@media (max-width: 768px) {
-  .back,
-  .imd {
-    font-size: 3vw;
-    padding: 10px 15px;
-  }
-}
-
-@media (max-width: 480px) {
-  .back,
-  .imd {
-    font-size: 4vw;
-    padding: 8px 12px;
-    bottom: 10px;
+  #video-container {
+    width: 100px;
   }
 }

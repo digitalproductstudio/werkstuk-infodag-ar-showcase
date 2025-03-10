@@ -4,25 +4,36 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ball Invader</title>
-    <link rel="stylesheet" href="./assets/css/style.css"> 
+    <link rel="stylesheet" href="./assets/css/style.css">
+    <link rel="icon" href="./assets/favicon/favicon.ico" type="image/x-icon">
     <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js"></script>
-    <link rel="icon" href="./assets/favicon/favicon.ico" type="image/x-icon">
 </head>
 <body>
     <div class="header">🎯 Ball Invader</div>
-    <video id="video" autoplay playsinline></video>
-    <canvas id="canvas"></canvas>
+ 
+    <div id="game-container">
+        <div id="bullets"></div>
+        <canvas id="canvas" width="640" height="480"></canvas>
+        <div id="video-container">
+            <video id="video" autoplay playsinline muted></video>
+        </div>
+    </div>
+ 
     <div id="score">Score: 0</div>
+ 
     <div id="timer">Time: 20</div>
+ 
     <a id="back" href="./index.html" class="back">🔙 Back</a>
     <a id="imd" href="https://www.arteveldehogeschool.be/nl/opleidingen/bachelor/interactive-media-development" class="imd" target="_blank">🎓 JOIN IMD</a>
+ 
     <div id="gameOver">
         <p>Game Over! 🎮</p>
         <p>Your Score: <span id="finalScore"></span></p>
         <button onclick="restartGame()">Restart</button>
     </div>
+ 
     <script src="./assets/js/game.js"></script>
 </body>
 </html>

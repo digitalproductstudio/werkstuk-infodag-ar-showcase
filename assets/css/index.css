@@ -1,139 +1,152 @@
 /* Full-screen camera background */
 #camera-container {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  z-index: -1;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    object-fit: cover;
 }
-
-/* Floating bubbles */
-.bubble {
-  position: absolute;
-  width: 80px;
-  height: 80px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 24px;
-  font-weight: bold;
-  color: white;
-  text-align: center;
-  cursor: pointer;
-  user-select: none;
-  transition: transform 0.3s ease, background-color 0.3s ease;
-}
-
-.bubble:hover {
-  transform: scale(1.1);
-}
-
-/* Virtual Cursor */
-#cursor {
-  position: absolute;
-  width: 20px;
-  height: 20px;
-  background: red;
-  border-radius: 50%;
-  pointer-events: none;
-  z-index: 10;
-}
-
-video {
-  transform: scaleX(-1);
-}
-
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-.animate-fadeIn {
-  animation: fadeIn 1s ease-out forwards;
-}
-
-/* Hide all interactive elements initially */
-#camera-container,
-#cursor,
-.bubble {
-  opacity: 0;
-  visibility: hidden;
-  transition: opacity 0.5s ease, visibility 0.5s ease;
-}
-
-/* Slide-out animation for the welcome screen */
-@keyframes slideOut {
-  from {
-    opacity: 1;
-    transform: translateX(0);
-  }
-  to {
-    opacity: 0;
-    transform: translateX(-100vw);
-  }
-}
-
-.slide-out {
-  animation: slideOut 0.8s ease-out forwards;
-}
-
-/* Responsive adjustments */
-@media (max-width: 768px) {
+  
+  /* Floating bubbles */
+  /* 3D Blob styling for bubbles */
   .bubble {
-    width: 60px;
-    height: 60px;
-    font-size: 18px;
-  }
-
-  #cursor {
-    width: 15px;
-    height: 15px;
-  }
-
-  #welcome-screen h1 {
-    font-size: 2.5rem;
-  }
-
-  #welcome-screen p {
-    font-size: 1rem;
-  }
-
-  #welcome-screen button {
-    font-size: 1rem;
-    padding: 0.5rem 1rem;
-  }
-}
-
-@media (max-width: 480px) {
+      position: absolute;
+      width: 80px;
+      height: 80px;
+      border-radius: 40% 60% 70% 30% / 40% 50% 60% 50%; /* Blob-like shape */
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      font-weight: bold;
+      color: white;
+      text-align: center;
+      cursor: pointer;
+      user-select: none;
+      transform-style: preserve-3d;
+      perspective: 800px;
+      box-shadow: inset 2px 2px 15px rgba(255, 255, 255, 0.5),
+                  0 0 15px currentColor, 
+                  0 0 30px rgba(255, 255, 255, 0.3);
+      background: radial-gradient(circle at 30% 30%, 
+                  rgba(255, 255, 255, 0.8) 0%, 
+                  rgba(255, 255, 255, 0.3) 70%, 
+                  rgba(255, 255, 255, 0.1) 100%);
+      animation: blob-morph 8s ease-in-out infinite;
+      transition: transform 0.3s ease, filter 0.3s ease;
+    }
+    
+    .bubble:hover {
+      transform: scale(1.1) rotate3d(1, 1, 1, 15deg);
+      filter: brightness(1.2);
+    }
+    
+    /* Blob morphing animation */
+    @keyframes blob-morph {
+      0% { border-radius: 40% 60% 70% 30% / 40% 50% 60% 50%; }
+      25% { border-radius: 70% 30% 50% 50% / 30% 60% 40% 70%; }
+      50% { border-radius: 30% 60% 70% 40% / 50% 60% 30% 60%; }
+      75% { border-radius: 50% 60% 30% 70% / 60% 30% 70% 40%; }
+      100% { border-radius: 40% 60% 70% 30% / 40% 50% 60% 50%; }
+    }
+    
+    /* Floating animation for the blobs */
+    @keyframes float {
+      0% { transform: translateY(0) rotate3d(1, 2, 1, 0deg); }
+      50% { transform: translateY(-10px) rotate3d(1, 2, 1, 5deg); }
+      100% { transform: translateY(0) rotate3d(1, 2, 1, 0deg); }
+    }
+    
+    /* Add floating animation to each bubble with different delays */
+    .bubble:nth-child(1) { animation: blob-morph 8s ease-in-out infinite, float 6s ease-in-out infinite; }
+    .bubble:nth-child(2) { animation: blob-morph 8s ease-in-out infinite 1s, float 7s ease-in-out infinite 0.5s; }
+    .bubble:nth-child(3) { animation: blob-morph 8s ease-in-out infinite 2s, float 5s ease-in-out infinite 1s; }
+    .bubble:nth-child(4) { animation: blob-morph 8s ease-in-out infinite 3s, float 8s ease-in-out infinite 1.5s; }
+    
+    /* Pulse effect enhancement */
+    @keyframes pulse {
+      0% { 
+        transform: scale(1) rotate3d(1, 1, 1, 0deg); 
+        box-shadow: inset 2px 2px 15px rgba(255, 255, 255, 0.5),
+                    0 0 10px currentColor, 
+                    0 0 20px rgba(255, 255, 255, 0.3); 
+      }
+      100% { 
+        transform: scale(1.1) rotate3d(1, 1, 1, 10deg); 
+        box-shadow: inset 2px 2px 25px rgba(255, 255, 255, 0.7),
+                    0 0 20px currentColor, 
+                    0 0 40px rgba(255, 255, 255, 0.5); 
+      }
+    }
+    
+  /* Darker, more muted translucent blob effect */
   .bubble {
-    width: 50px;
-    height: 50px;
-    font-size: 16px;
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
+      background-color: rgba(30, 30, 30, 0.6); /* Darker, semi-transparent */
+      border: 1px solid rgba(100, 100, 100, 0.4);
   }
-
+  
+  /* Reduce glow and depth effect */
+  .bubble::before {
+      content: '';
+      position: absolute;
+      top: 12%;
+      left: 18%;
+      width: 35%;
+      height: 25%;
+      background: rgba(100, 100, 100, 0.4);
+      border-radius: 50%;
+      filter: blur(4px);
+      z-index: -1;
+      opacity: 0.5;
+  }
+  
+  /* Darker Virtual Cursor */
   #cursor {
-    width: 10px;
-    height: 10px;
+      position: absolute;
+      width: 18px;
+      height: 18px;
+      background: hsl(0, 100%, 50%);
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 99999 !important; /* 🔥 Fix: Keeps cursor above all effects */
+      filter: blur(1px);
+      box-shadow: 0 0 5px rgba(150, 50, 50, 0.4);
+  }
+  
+  video {
+    transform: scaleX(-1);
+  }
+ 
+   
+  /* Responsive adjustments */
+  @media (max-width: 768px) {
+    .bubble {
+      width: 60px;
+      height: 60px;
+      font-size: 18px;
+    }
+  
+    #cursor {
+      width: 15px;
+      height: 15px;
+    }
+  
+  }
+  
+  @media (max-width: 480px) {
+    .bubble {
+      width: 50px;
+      height: 50px;
+      font-size: 16px;
+    }
+  
+    #cursor {
+      width: 10px;
+      height: 10px;
+    }
+
   }
 
-  #welcome-screen h1 {
-    font-size: 2rem;
-  }
-
-  #welcome-screen p {
-    font-size: 0.875rem;
-  }
-
-  #welcome-screen button {
-    font-size: 0.875rem;
-    padding: 0.5rem 0.75rem;
-  }
-}
