@@ -1,27 +1,45 @@
+@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+
 body {
-  text-align: center;
-  font-family: Arial, sans-serif;
-  background: radial-gradient(circle, #1e3c72, #2a5298);
-  color: white;
-  overflow: hidden;
   margin: 0;
   padding: 0;
+  font-family: 'Press Start 2P', cursive;
+  /* Dark, subtle gradient for a spacey arcade vibe */
+  background: linear-gradient(180deg, #0A0E27 0%, #1A1D38 100%);
+  color: #fff;
+  text-align: center; /* Ensures centered text in general */
+  overflow: hidden;
 }
- 
+
+/* Centered, neon-style header for the game title */
 .header {
-  font-size: 5vw;
+  margin: 40px auto 20px;
+  text-align: center;
+  font-size: 4vw;
   font-weight: bold;
-  margin: 40px 0;
+  color: #f44336;
+  text-shadow: 0 0 8px rgba(244, 67, 54, 0.8);
+  display: inline-block;
+  padding: 10px 20px;
+  border: 3px solid rgba(244, 67, 54, 0.5);
+  border-radius: 8px;
+  background: rgba(0, 0, 0, 0.3);
 }
- 
+
+/* Main container with a bold border and glow */
 #game-container {
   position: relative;
   margin: 0 auto;
   width: 90vw;
   max-width: 640px;
   height: 480px;
+  background: rgba(0, 0, 0, 0.5);
+  border: 4px solid #f44336;
+  box-shadow: 0 0 30px rgba(244, 67, 54, 0.7);
+  border-radius: 10px;
 }
- 
+
+/* Keep your canvas styling or tweak the background color/texture as desired */
 #canvas {
   width: 100%;
   height: 100%;
@@ -29,7 +47,8 @@ body {
   border: 3px solid #fff;
   border-radius: 10px;
 }
- 
+
+/* Camera container remains, for your AR or camera feed */
 #video-container {
   position: absolute;
   top: 10px;
@@ -41,13 +60,13 @@ body {
   overflow: hidden;
   z-index: 10;
 }
- 
 #video {
   width: 100%;
   height: auto;
-  transform: scaleX(-1); /* Fix mirror view */
+  transform: scaleX(-1); /* Mirror the video */
 }
- 
+
+/* Score, bullets, timer displays */
 #score,
 #bullets,
 #timer {
@@ -57,8 +76,9 @@ body {
   background: rgba(0, 0, 0, 0.6);
   padding: 6px 12px;
   border-radius: 8px;
+  color: #fff;
+  text-shadow: 1px 1px 3px rgba(0,0,0,0.8);
 }
- 
 #score,
 #bullets {
   left: 10px;
@@ -66,7 +86,8 @@ body {
 #timer {
   right: 10px;
 }
- 
+
+/* Game Over screen styling */
 #gameOver {
   display: none;
   position: fixed;
@@ -79,22 +100,26 @@ body {
   text-align: center;
   font-size: 1.5em;
 }
- 
+
+/* Buttons with a bright, retro gradient */
 button {
   padding: 10px 20px;
   font-size: 1em;
   border: none;
   border-radius: 8px;
-  background: #ff5722;
-  color: white;
+  background: linear-gradient(45deg, #f44336, #e91e63);
+  color: #fff;
   cursor: pointer;
   margin-top: 10px;
+  text-transform: uppercase;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+  transition: background 0.3s;
 }
- 
 button:hover {
-  background: #f44336;
+  background: linear-gradient(45deg, #e91e63, #f44336);
 }
- 
+
+/* Navigation links (Back, Join IMD) */
 .back,
 .imd {
   padding: 10px 15px;
@@ -107,20 +132,19 @@ button:hover {
   border-radius: 8px;
   transition: 0.3s;
 }
- 
 .back {
   left: 10px;
 }
 .imd {
   right: 10px;
 }
- 
 .back:hover,
 .imd:hover {
   background: rgba(0, 0, 0, 0.8);
   color: #f44336;
 }
- 
+
+/* Media Queries for smaller screens */
 @media (max-width: 768px) {
   #game-container {
     width: 95vw;
@@ -129,7 +153,7 @@ button:hover {
     width: 140px;
   }
 }
- 
+
 @media (max-width: 480px) {
   .header {
     font-size: 6vw;
