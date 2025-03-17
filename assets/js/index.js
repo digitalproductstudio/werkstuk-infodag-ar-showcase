@@ -312,22 +312,42 @@ const driverObj = window.driver.js.driver({
   startExperience();
   
   window.SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-  const recognition = new SpeechRecognition();
-  recognition.continuous = true;
-  recognition.lang = 'en-US';
-  recognition.onresult = event => {
-    const transcript = event.results[event.results.length - 1][0].transcript.trim().toLowerCase();
-    for (const [cmd, action] of Object.entries({
-      go: startExperience, begin: startExperience, start: startExperience,
-      imd: () => handleBubbleClick("link"), school: () => handleBubbleClick("link"), join: () => handleBubbleClick("link"),
-      game: () => handleBubbleClick("grow"), "play game": () => handleBubbleClick("grow"),
-      next: () => driverObj.moveNext(), continue: () => driverObj.moveNext(), forward: () => driverObj.moveNext(),
-      back: () => driverObj.movePrevious(), previous: () => driverObj.movePrevious(),
-      restart: () => driverObj.restart(),
-      exit: () => driverObj.destroy(), close: () => driverObj.destroy(), skip: () => driverObj.destroy()
-    })) {
-      if (transcript.includes(cmd)) { action(); break; }
+const recognition = new SpeechRecognition();
+recognition.continuous = true;  // Keep recognition running
+recognition.interimResults = true; // Capture words faster
+recognition.lang = 'en-US';
+
+recognition.onresult = event => {
+    let transcript = '';
+    for (let i = event.resultIndex; i < event.results.length; i++) {
+        transcript += event.results[i][0].transcript.trim().toLowerCase();
     }
-  };
-  recognition.onend = () => recognition.start();
-  recognition.start();
+
+    const commands = {
+        go: startExperience, begin: startExperience, start: startExperience,
+        imd: () => handleBubbleClick("link"), school: () => handleBubbleClick("link"), join: () => handleBubbleClick("link"),
+        game: () => handleBubbleClick("grow"), "play game": () => handleBubbleClick("grow"),
+        next: () => driverObj.moveNext(), continue: () => driverObj.moveNext(), forward: () => driverObj.moveNext(),
+        back: () => driverObj.movePrevious(), previous: () => driverObj.movePrevious(),
+        restart: () => driverObj.restart(),
+        exit: () => driverObj.destroy(), close: () => driverObj.destroy(), skip: () => driverObj.destroy()
+    };
+
+    for (const [cmd, action] of Object.entries(commands)) {
+        if (transcript.includes(cmd)) {
+            console.log(`Command detected: ${cmd}`);
+            action();
+            recognition.abort(); // Stop to avoid duplicate triggers
+            setTimeout(() => recognition.start(), 100); // Restart immediately
+            break;
+        }
+    }
+};
+
+// Restart immediately when stopped
+recognition.onend = () => {
+    setTimeout(() => recognition.start(), 100);
+};
+
+// Start recognition
+recognition.start();
