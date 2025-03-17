@@ -126,25 +126,33 @@ const startTimer = () => {
       Update Cursor & Game
 --------------------------- */
 const updateCursor = results => {
+    // Ensure the canvas size matches the video
     if (video.videoWidth && video.videoHeight) {
         [canvas.width, canvas.height] = [video.videoWidth, video.videoHeight];
     }
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-    if (results.multiHandLandmarks.length > 0) {
+    
+    // Get the warning element
+    const handWarning = document.getElementById('hand-warning');
+    
+    // Check if any hand landmarks are detected
+    if (results.multiHandLandmarks && results.multiHandLandmarks.length > 0) {
+        // Hand detected – hide warning if visible
+        if (handWarning) handWarning.style.display = 'none';
+        
         let landmarks = results.multiHandLandmarks[0],
             closed = isHandClosed(landmarks);
-
+    
         // Detect fist closing to fire multi-bullets
         if (!handClosed && closed) fireMultiBullets();
         handClosed = closed;
-
+    
         // Update cursor position (mirrored)
         [cursor.x, cursor.y] = [
             (1 - landmarks[8].x) * canvas.width,
             landmarks[8].y * canvas.height
         ];
-
+    
         drawCursor();
         shootBullet();
         
@@ -152,18 +160,27 @@ const updateCursor = results => {
         if (bulletCount === 0) {
             checkCursorOverReload();
         }
+    } else {
+        // No hand detected – show the warning message
+        if (handWarning) handWarning.style.display = 'block';
     }
-
+    
     updateBalls();
     updateBullets();
     drawExplosions();
-    checkBallHitsCursor();
+    
+    // Only check ball-to-cursor collisions if a hand is detected.
+    if (results.multiHandLandmarks && results.multiHandLandmarks.length > 0) {
+        checkBallHitsCursor();
+    }
     
     // Draw hover progress indicator if currently hovering
     if (isHovering && bulletCount === 0) {
         drawHoverIndicator();
     }
 };
+
+
 
 /* ---------------------------
    Draw Hover Progress Indicator
@@ -299,7 +316,7 @@ const shootBullet = () => {
             
             // Add visual hint for hover to reload
             const hint = document.createElement('div');
-            hint.textContent = '(Hover to reload)';
+            hint.textContent = '(Hover over the reload word to reload)';
             hint.style.fontSize = '12px';
             hint.style.color = 'orange';
             hint.style.position = 'absolute';

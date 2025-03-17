@@ -35,6 +35,30 @@
         <p>Your Score: <span id="finalScore"></span></p>
         <button onclick="restartGame()">Restart</button>
     </div>
+
+<!-- Warning message for no hand detected -->
+<div id="hand-warning" style="
+    position: absolute;
+    display: none;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: rgba(255, 0, 0, 0.8);
+    color: #fff;
+    padding: 20px 30px;
+    font-size: 1.5rem;
+    text-align: center;
+    border-radius: 10px;
+    z-index: 1000;
+    max-width: 90%;
+    box-shadow: 0 0 20px rgba(0,0,0,0.5);
+    animation: pulse 2s infinite;
+">
+  Put your hand in front of the camera
+</div>
+
+
+  
  
     <script src="./assets/js/game.js"></script>
 </body>
