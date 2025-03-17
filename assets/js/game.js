@@ -176,6 +176,20 @@ const startTimer = () => {
     }, 1000);
 };
 
+
+const isReloadGesture = landmarks => {
+    // Check if the index finger is extended (tip is above the first knuckle)
+    const indexExtended = landmarks[8].y < landmarks[6].y;
+    // Check if the middle finger is extended
+    const middleExtended = landmarks[12].y < landmarks[10].y;
+    // Check if the ring finger is curled (tip is below the joint)
+    const ringCurled = landmarks[16].y > landmarks[14].y;
+    // Check if the pinky is curled
+    const pinkyCurled = landmarks[20].y > landmarks[18].y;
+    
+    return indexExtended && middleExtended && ringCurled && pinkyCurled;
+};
+
 /* ---------------------------
       Update Cursor & Game
 --------------------------- */
@@ -216,9 +230,14 @@ const updateCursor = results => {
       drawCursor();
       shootBullet();
       
-      // Check if cursor is hovering over the "Reload" text when bullet count is 0
+      // When bullet count is zero, check for the reload gesture (peace sign ✌️)
       if (bulletCount === 0) {
-        checkCursorOverReload();
+        if (isReloadGesture(landmarks)) {
+          reloadBullets();
+        } else {
+          // Fallback: if gesture isn't present, you might still want to show the hover-based reload indicator.
+          checkCursorOverReload();
+        }
       }
     } else {
       // No hand detected – show the container (with the warning and countdown)
@@ -247,6 +266,7 @@ const updateCursor = results => {
       drawHoverIndicator();
     }
 };
+
   
 /* ---------------------------
    Draw Hover Progress Indicator
@@ -367,14 +387,38 @@ const shootBullet = () => {
             bulletDisplay.onclick = reloadBullets;
             
             const hint = document.createElement('div');
-            hint.textContent = "Place your hand\n over 'reload' to refill.";
+            hint.textContent = "Flash a ✌️ to reload!";
             hint.style.whiteSpace = 'pre-line'; // Ensures line breaks are respected
-            hint.style.fontSize = '12px';
+            hint.style.fontSize = '16px'; // Increased size for better visibility
             hint.style.color = 'orange';
             hint.style.position = 'absolute';
-            hint.style.left = (bulletDisplay.offsetLeft) + 'px';
+            hint.style.left = bulletDisplay.offsetLeft + 'px';
             hint.style.top = (bulletDisplay.offsetTop + bulletDisplay.offsetHeight + 15) + 'px';
+            hint.style.padding = '5px 10px';
+            hint.style.borderRadius = '5px';
+            hint.style.background = 'rgba(0, 0, 0, 0.6)'; // Semi-transparent background for better contrast
+            hint.style.fontWeight = 'bold';
+            hint.style.transition = 'transform 0.5s ease-in-out, opacity 0.5s ease-in-out';
             hint.id = 'hover-hint';
+            
+            // Add a pulsing effect using CSS animation
+            hint.style.animation = 'pulse 1.5s infinite alternate';
+            
+            // Append only if it doesn't already exist
+            if (!document.getElementById('hover-hint')) {
+                document.body.appendChild(hint);
+            }
+            
+            // Add a keyframe animation for pulsing
+            const style = document.createElement('style');
+            style.innerHTML = `
+                @keyframes pulse {
+                    0% { transform: scale(1); opacity: 1; }
+                    100% { transform: scale(1.1); opacity: 0.8; }
+                }
+            `;
+            document.head.appendChild(style);
+            
             
             if (!document.getElementById('hover-hint')) {
                 document.body.appendChild(hint);
