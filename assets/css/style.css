@@ -1,11 +1,11 @@
-@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap");
 
 body {
   margin: 0;
   padding: 0;
-  font-family: 'Press Start 2P', cursive;
+  font-family: "Press Start 2P", cursive;
   /* Dark, subtle gradient for a spacey arcade vibe */
-  background: linear-gradient(180deg, #0A0E27 0%, #1A1D38 100%);
+  background: linear-gradient(180deg, #0a0e27 0%, #1a1d38 100%);
   color: #fff;
   text-align: center; /* Ensures centered text in general */
   overflow: hidden;
@@ -77,7 +77,7 @@ body {
   padding: 6px 12px;
   border-radius: 8px;
   color: #fff;
-  text-shadow: 1px 1px 3px rgba(0,0,0,0.8);
+  text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.8);
 }
 #score,
 #bullets {
@@ -99,6 +99,24 @@ body {
   border-radius: 10px;
   text-align: center;
   font-size: 1.5em;
+}
+
+#hand-warning {
+  position: absolute;
+  display: none;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: rgba(255, 0, 0, 0.8);
+  color: #fff;
+  padding: 20px 30px;
+  font-size: 1.5rem;
+  text-align: center;
+  border-radius: 10px;
+  z-index: 1000;
+  max-width: 90%;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+  animation: pulse 2s infinite;
 }
 
 /* Buttons with a bright, retro gradient */
@@ -165,7 +183,6 @@ button:hover {
     width: 100px;
   }
 }
-
 
 @keyframes pulse {
   0% {
