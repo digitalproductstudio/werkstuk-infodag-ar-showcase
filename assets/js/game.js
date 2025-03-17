@@ -41,7 +41,7 @@ bulletDisplay.innerText = `Bullets: ${bulletCount}`;
 
 let balls = [], bullets = [], explosions = [],
     cursor = { x: 320, y: 400 },
-    lastShootTime = 0, score = 0, timeLeft = 20, gameActive = true,
+    lastShootTime = 0, score = 0, timeLeft = 30, gameActive = true,
     timerInterval, handClosed = false;
 
 // Hover timer and tracking variables
@@ -59,8 +59,8 @@ const CONFIG = {
     cursorRadius: 10,
     shootCooldown: 300, 
     multiDirectionBullets: 10, 
-    gameTime: 20,
-    hoverReloadTime: 600 // Time required to hover for reload (ms)
+    gameTime: 30,
+    hoverReloadTime: 200 // Time required to hover for reload (ms)
 };
 
 const DIRECTIONS = ["top", "right", "bottom", "left"];
@@ -511,7 +511,7 @@ function restartGame() {
     cursor = { x: 320, y: 400 };
     lastShootTime = 0;
     score = 0;
-    timeLeft = 20;
+    timeLeft = 30;
     gameActive = true;
     
     // Reset hover state
