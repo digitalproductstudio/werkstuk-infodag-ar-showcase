@@ -5,24 +5,76 @@ let onboardingActive = true;
          Onboarding
 --------------------------- */
 const driverObj = window.driver.js.driver({
-    showProgress: true,
-    opacity: 0.75,
-    steps: [
-        { popover: { 
-            title: "Welcome to Ball Invader", 
-            description: "Use your voice to Reload by saying Reload, Restart or Play Again to play it Again, Reset to put the timer back in 30, Say Home, back, menu or main to go back to the main show page, Say IMD or Join to go to the IMD website. You can also hover your hand over the 'Reload' text to reload bullets, close your hand to fire multi-directional bullets, enjoy!", 
-            side: "top", 
-            align: "start" 
-        } }
-    ],
-    onDestroyed: () => {
-        // Set the flag to false once onboarding is closed,
-        // then start the game.
-        onboardingActive = false;
-        startGame();
-    }
+  showProgress: true,
+  opacity: 0.75,
+  steps: [
+    { popover: { 
+        title: "Welcome to Ball Invader", 
+        description: "Use your voice to Reload by saying Reload, Restart or Play Again to play it Again, Reset to put the timer back in 30, Say Home, back, menu or main to go back to the main show page, Say IMD or Join to go to the IMD website. You can also hover your hand over the 'Reload' text to reload bullets, close your hand to fire multi-directional bullets, enjoy!", 
+        side: "top", 
+        align: "start" 
+      } }
+  ],
+  onDestroyed: () => {
+    // Set the flag to false once onboarding is closed, then start the game.
+    onboardingActive = false;
+    startGame();
+  }
 });
 driverObj.drive();
+
+
+// New globals for hand-missing state and countdown
+let handMissing = false;
+let handCountdown = 10;
+let handCountdownInterval = null;
+
+// Start a countdown from 10 to 0. When it reaches 0, hide the message and end the game.
+function startCountdown() {
+  handCountdown = 10;
+  updateCountdownDisplay(handCountdown);
+  handCountdownInterval = setInterval(() => {
+    handCountdown--;
+    updateCountdownDisplay(handCountdown);
+    if (handCountdown <= 0) {
+      clearInterval(handCountdownInterval);
+      handCountdownInterval = null;
+      // Hide the container that holds the warning and countdown
+      const handMessageContainer = document.getElementById('hand-message-container');
+      if (handMessageContainer) {
+        handMessageContainer.style.display = 'none';
+      }
+      gameOver(true); // End game if hand isn't detected in time.
+    }
+  }, 1000);
+}
+
+// Cancel the countdown and hide its display.
+function clearCountdown() {
+  if (handCountdownInterval) {
+    clearInterval(handCountdownInterval);
+    handCountdownInterval = null;
+  }
+  hideCountdownDisplay();
+}
+
+// Update the countdown element's text.
+function updateCountdownDisplay(time) {
+  const countdownElem = document.getElementById('hand-countdown');
+  if (countdownElem) {
+    countdownElem.innerText = time;
+    countdownElem.style.display = 'block';
+  }
+}
+
+// Hide the countdown display.
+function hideCountdownDisplay() {
+  const countdownElem = document.getElementById('hand-countdown');
+  if (countdownElem) {
+    countdownElem.style.display = 'none';
+  }
+}
+
 
 /* ---------------------------
          Game Variables
@@ -70,6 +122,8 @@ const DIRECTIONS = ["top", "right", "bottom", "left"];
 --------------------------- */
 const createBall = () => {
     if (!gameActive) return;
+    // Only create balls if a hand is detected
+    if (handMissing) return;
     let direction = DIRECTIONS[Math.floor(Math.random() * 4)], x, y;
     if (direction === "top") [x, y] = [Math.random() * canvas.width, -CONFIG.ballRadius];
     if (direction === "right") [x, y] = [canvas.width + CONFIG.ballRadius, Math.random() * canvas.height];
@@ -128,60 +182,72 @@ const startTimer = () => {
 const updateCursor = results => {
     // Ensure the canvas size matches the video
     if (video.videoWidth && video.videoHeight) {
-        [canvas.width, canvas.height] = [video.videoWidth, video.videoHeight];
+      [canvas.width, canvas.height] = [video.videoWidth, video.videoHeight];
     }
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     
-    // Get the warning element
-    const handWarning = document.getElementById('hand-warning');
+    // Get the hand message container element
+    const handMessageContainer = document.getElementById('hand-message-container');
     
-    // Check if any hand landmarks are detected
     if (results.multiHandLandmarks && results.multiHandLandmarks.length > 0) {
-        // Hand detected – hide warning if visible
-        if (handWarning) handWarning.style.display = 'none';
-        
-        let landmarks = results.multiHandLandmarks[0],
-            closed = isHandClosed(landmarks);
-    
-        // Detect fist closing to fire multi-bullets
-        if (!handClosed && closed) fireMultiBullets();
-        handClosed = closed;
-    
-        // Update cursor position (mirrored)
-        [cursor.x, cursor.y] = [
-            (1 - landmarks[8].x) * canvas.width,
-            landmarks[8].y * canvas.height
-        ];
-    
-        drawCursor();
-        shootBullet();
-        
-        // Check if cursor is hovering over the "Reload" text when bullet count is 0
-        if (bulletCount === 0) {
-            checkCursorOverReload();
-        }
+      // Hand detected – if it was previously missing, clear the countdown and reset flag.
+      if (handMissing) {
+        handMissing = false;
+        clearCountdown();
+      }
+      // Hide the container that shows warning and countdown
+      if (handMessageContainer) {
+        handMessageContainer.style.display = 'none';
+      }
+      
+      let landmarks = results.multiHandLandmarks[0],
+          closed = isHandClosed(landmarks);
+      
+      // Detect fist closing to fire multi-bullets
+      if (!handClosed && closed) fireMultiBullets();
+      handClosed = closed;
+      
+      // Update cursor position (mirrored)
+      [cursor.x, cursor.y] = [
+        (1 - landmarks[8].x) * canvas.width,
+        landmarks[8].y * canvas.height
+      ];
+      
+      drawCursor();
+      shootBullet();
+      
+      // Check if cursor is hovering over the "Reload" text when bullet count is 0
+      if (bulletCount === 0) {
+        checkCursorOverReload();
+      }
     } else {
-        // No hand detected – show the warning message
-        if (handWarning) handWarning.style.display = 'block';
+      // No hand detected – show the container (with the warning and countdown)
+      if (handMessageContainer) {
+        handMessageContainer.style.display = 'block';
+      }
+      // Start the countdown if not already running
+      if (!handMissing) {
+        handMissing = true;
+        startCountdown();
+      }
     }
     
+    // Always update game elements (balls, bullets, explosions)
     updateBalls();
     updateBullets();
     drawExplosions();
     
-    // Only check ball-to-cursor collisions if a hand is detected.
+    // Only check collisions if a hand is detected.
     if (results.multiHandLandmarks && results.multiHandLandmarks.length > 0) {
-        checkBallHitsCursor();
+      checkBallHitsCursor();
     }
     
-    // Draw hover progress indicator if currently hovering
+    // Draw hover progress indicator if needed.
     if (isHovering && bulletCount === 0) {
-        drawHoverIndicator();
+      drawHoverIndicator();
     }
 };
-
-
-
+  
 /* ---------------------------
    Draw Hover Progress Indicator
 --------------------------- */
@@ -207,37 +273,28 @@ const drawHoverIndicator = () => {
    Check Cursor Over Reload
 --------------------------- */
 const checkCursorOverReload = () => {
-    // Get the position and dimensions of the bulletDisplay element
     const bulletRect = bulletDisplay.getBoundingClientRect();
-    
-    // Convert canvas coordinates to screen coordinates
     const canvasRect = canvas.getBoundingClientRect();
     const screenX = (cursor.x / canvas.width) * canvasRect.width + canvasRect.left;
     const screenY = (cursor.y / canvas.height) * canvasRect.height + canvasRect.top;
     
-    // Check if cursor is over the Reload text
     if (screenX >= bulletRect.left && screenX <= bulletRect.right &&
         screenY >= bulletRect.top && screenY <= bulletRect.bottom) {
         
-        // Set hovering flag for visual feedback
         isHovering = true;
         
-        // Increase hover timer
         if (!reloadHoverTimer) {
             const startTime = Date.now();
             hoverIndicator = 0;
             
-            // Use requestAnimationFrame for smoother visual feedback
             const updateHover = () => {
                 const elapsed = Date.now() - startTime;
                 hoverIndicator = elapsed;
                 
                 if (elapsed >= CONFIG.hoverReloadTime) {
-                    // Time threshold reached, reload bullets
                     reloadBullets();
                     reloadHoverTimer = null;
                 } else if (isHovering) {
-                    // Keep updating if still hovering
                     reloadHoverTimer = requestAnimationFrame(updateHover);
                 }
             };
@@ -245,7 +302,6 @@ const checkCursorOverReload = () => {
             reloadHoverTimer = requestAnimationFrame(updateHover);
         }
     } else {
-        // Clear hover state if cursor moves away
         isHovering = false;
         hoverIndicator = 0;
         
@@ -283,17 +339,14 @@ const fireMultiBullets = () => {
          Draw Cursor
 --------------------------- */
 const drawCursor = () => {
-    // Draw cursor glow
     ctx.shadowBlur = 15;
     ctx.shadowColor = "rgba(255, 255, 0, 0.7)";
     
-    // Draw cursor
     ctx.fillStyle = "yellow";
     ctx.beginPath();
     ctx.arc(cursor.x, cursor.y, CONFIG.cursorRadius, 0, 2 * Math.PI);
     ctx.fill();
     
-    // Reset shadow effects
     ctx.shadowBlur = 0;
 };
 
@@ -306,7 +359,6 @@ const shootBullet = () => {
         lastShootTime = Date.now();
         bulletCount--;
 
-        // If out of bullets, show "Reload" clickable
         if (bulletCount === 0) {
             bulletDisplay.innerText = 'Reload';
             bulletDisplay.style.color = 'red';
@@ -314,7 +366,6 @@ const shootBullet = () => {
             bulletDisplay.style.textDecoration = 'underline';
             bulletDisplay.onclick = reloadBullets;
             
-            // Add visual hint for hover to reload
             const hint = document.createElement('div');
             hint.textContent = '(Hover over the reload word to reload)';
             hint.style.fontSize = '12px';
@@ -333,7 +384,6 @@ const shootBullet = () => {
             bulletDisplay.style.textDecoration = 'none';
             bulletDisplay.onclick = null;
             
-            // Remove hover hint if exists
             const hint = document.getElementById('hover-hint');
             if (hint) hint.remove();
         }
@@ -347,7 +397,7 @@ const shootBullet = () => {
 --------------------------- */
 const playSound = src => {
     const sound = new Audio(src);
-    sound.volume = 0.7; // Slightly reduce volume
+    sound.volume = 0.7;
     sound.play().catch(e => console.warn('Sound error:', e));
 };
 
@@ -357,29 +407,30 @@ const playSound = src => {
 const updateBullets = () => {
     ctx.fillStyle = "cyan";
     bullets.forEach((bullet, i) => {
+      if (!handMissing) {
         bullet.x += bullet.dx;
         bullet.y += bullet.dy;
-        
-        // Add bullet glow effect
-        ctx.shadowBlur = 10;
-        ctx.shadowColor = "rgba(0, 255, 255, 0.7)";
-        
-        ctx.beginPath();
-        ctx.arc(bullet.x, bullet.y, CONFIG.bulletRadius, 0, 2 * Math.PI);
-        ctx.fill();
-        
-        // Reset shadow for next drawing operations
-        ctx.shadowBlur = 0;
-
-        // Remove bullets off screen
-        if (bullet.y < -CONFIG.bulletRadius ||
-            bullet.y > canvas.height + CONFIG.bulletRadius ||
-            bullet.x < -CONFIG.bulletRadius ||
-            bullet.x > canvas.width + CONFIG.bulletRadius) {
-            bullets.splice(i, 1);
-        }
+      }
+      
+      ctx.shadowBlur = 10;
+      ctx.shadowColor = "rgba(0, 255, 255, 0.7)";
+      
+      ctx.beginPath();
+      ctx.arc(bullet.x, bullet.y, CONFIG.bulletRadius, 0, 2 * Math.PI);
+      ctx.fill();
+      
+      ctx.shadowBlur = 0;
+      
+      if (bullet.y < -CONFIG.bulletRadius ||
+          bullet.y > canvas.height + CONFIG.bulletRadius ||
+          bullet.x < -CONFIG.bulletRadius ||
+          bullet.x > canvas.width + CONFIG.bulletRadius) {
+        bullets.splice(i, 1);
+      }
     });
-    checkBulletCollision();
+    if (!handMissing) {
+      checkBulletCollision();
+    }
 };
 
 /* ---------------------------
@@ -416,12 +467,14 @@ function drawBlobBall(ball) {
 
 const updateBalls = () => {
     balls.forEach(ball => {
-        let dx = cursor.x - ball.x,
-            dy = cursor.y - ball.y,
-            dist = Math.hypot(dx, dy);
-        if (dist > 0) {
-            ball.x += (dx / dist) * ball.speed;
-            ball.y += (dy / dist) * ball.speed;
+        if (!handMissing) {
+            let dx = cursor.x - ball.x,
+                dy = cursor.y - ball.y,
+                dist = Math.hypot(dx, dy);
+            if (dist > 0) {
+                ball.x += (dx / dist) * ball.speed;
+                ball.y += (dy / dist) * ball.speed;
+            }
         }
         drawBlobBall(ball);
     });
@@ -459,7 +512,6 @@ const checkBallHitsCursor = () => {
 --------------------------- */
 const drawExplosions = () => {
     explosions.forEach((explosion, i) => {
-        // Add glow effect to explosions
         ctx.shadowBlur = 15;
         ctx.shadowColor = 'rgba(255, 165, 0, 0.7)';
         
@@ -468,7 +520,6 @@ const drawExplosions = () => {
         ctx.arc(explosion.x, explosion.y, explosion.size, 0, 2 * Math.PI);
         ctx.fill();
         
-        // Reset shadow effects
         ctx.shadowBlur = 0;
         
         if ((explosion.size -= 0.5) <= 0) explosions.splice(i, 1);
@@ -482,13 +533,11 @@ const gameOver = (death = false) => {
     gameActive = false;
     clearInterval(timerInterval);
     
-    // Clean up hover elements
     const hint = document.getElementById('hover-hint');
     if (hint) hint.remove();
     
     if (death) {
         playSound('./assets/sounds/death.mp3');
-        // Add explosion effect at cursor position
         for (let i = 0; i < 10; i++) {
             explosions.push({ 
                 x: cursor.x + (Math.random() - 0.5) * 30, 
@@ -498,7 +547,6 @@ const gameOver = (death = false) => {
             });
         }
         
-        // Add slight delay to show explosion before game over screen
         setTimeout(() => {
             gameOverScreen.style.display = 'block';
             finalScore.innerText = score;
@@ -521,6 +569,10 @@ const resetTimer = () => {
 
 function restartGame() {
     clearInterval(timerInterval);
+    // Reset hand-related state
+    handMissing = false;
+    clearCountdown();
+    
     bulletCount = 50;
     balls = [];
     bullets = [];
@@ -531,7 +583,6 @@ function restartGame() {
     timeLeft = 30;
     gameActive = true;
     
-    // Reset hover state
     isHovering = false;
     hoverIndicator = 0;
     if (reloadHoverTimer) {
@@ -548,7 +599,6 @@ function restartGame() {
     bulletDisplay.style.textDecoration = 'none';
     bulletDisplay.onclick = null;
     
-    // Remove hover hint if exists
     const hint = document.getElementById('hover-hint');
     if (hint) hint.remove();
 
@@ -569,20 +619,17 @@ recognition.onresult = function (event) {
     handleVoiceCommand(transcript);
 };
 
-// Make sure recognition restarts if it ends
 recognition.onend = function() {
     recognition.start();
 };
 
-// Only allow non-onboarding voice commands if onboarding is finished.
 function handleVoiceCommand(transcript) {
     if (onboardingActive) {
-        // While onboarding is active, allow only commands to close it.
         const onboardingCloseCommands = ["close", "stop", "end", "quit", "destroy", "exit", "next", "skip"];
         if (onboardingCloseCommands.some(cmd => transcript.includes(cmd))) {
             driverObj.destroy();
         }
-        return; // Ignore any other commands while onboarding is active.
+        return;
     }
     
     const commands = {        
@@ -611,7 +658,6 @@ function handleVoiceCommand(transcript) {
 /* ---------------------------
          Start Game
 --------------------------- */
-// The game will only start once the onboarding driver is closed.
 function startGame() {
     const hands = new Hands({
         locateFile: file => `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`
@@ -634,5 +680,4 @@ function startGame() {
     window.restartGame = restartGame;
 }
 
-// Start voice recognition immediately.
 recognition.start();

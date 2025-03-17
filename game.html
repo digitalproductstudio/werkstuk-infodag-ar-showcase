@@ -17,9 +17,10 @@
  
     <div id="game-container">
         <!-- Warning message for no hand detected -->
-<div id="hand-warning">
-Put your hand in front of the camera
-</div>
+<div id="hand-message-container">
+    <div id="hand-warning">Put your hand in front of the camera     <div id="hand-countdown">10</div></div>
+  </div>
+  
         <div id="bullets"></div>
         <canvas id="canvas" width="640" height="480"></canvas>
         <div id="video-container">
@@ -39,11 +40,6 @@ Put your hand in front of the camera
         <p>Your Score: <span id="finalScore"></span></p>
         <button onclick="restartGame()">Restart</button>
     </div>
-
-
-
-
-  
  
     <script src="./assets/js/game.js"></script>
 </body>

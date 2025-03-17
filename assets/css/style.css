@@ -101,23 +101,49 @@ body {
   font-size: 1.5em;
 }
 
-#hand-warning {
-  position: absolute;
-  display: none;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  background-color: rgba(255, 0, 0, 0.8);
-  color: #fff;
-  padding: 20px 30px;
-  font-size: 1.5rem;
-  text-align: center;
-  border-radius: 10px;
-  z-index: 1000;
-  max-width: 90%;
-  box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
-  animation: pulse 2s infinite;
-}
+/* Container that holds both the warning and countdown */
+#hand-message-container {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+    z-index: 1001;
+    display: none; /* Hidden by default; show when needed */
+    max-width: 90%;
+    padding: 10px;
+  }
+  
+  /* Warning message styling */
+  #hand-warning {
+    background-color: rgba(255, 0, 0, 0.8);
+    color: #fff;
+    padding: 20px 30px;
+    font-size: 1.5rem;
+    border-radius: 10px;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+    animation: pulse 2s infinite;
+  }
+  
+  /* Countdown timer styling */
+  #hand-countdown {
+    margin-top: 10px;
+    background: rgba(0, 0, 0, 0.7);
+    color: #fff;
+    padding: 10px 20px;
+    font-size: 2rem;
+    border-radius: 10px;
+    max-width: fit-content;
+    margin-inline: auto;
+  }
+  
+  /* Pulse animation for the warning message */
+  @keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+  }
+  
 
 /* Buttons with a bright, retro gradient */
 button {
@@ -181,17 +207,5 @@ button:hover {
   }
   #video-container {
     width: 100px;
-  }
-}
-
-@keyframes pulse {
-  0% {
-    transform: translate(-50%, -50%) scale(1);
-  }
-  50% {
-    transform: translate(-50%, -50%) scale(1.05);
-  }
-  100% {
-    transform: translate(-50%, -50%) scale(1);
   }
 }
