@@ -158,6 +158,8 @@ button {
   text-transform: uppercase;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
   transition: background 0.3s;
+  font-family: "Press Start 2P", cursive;
+
 }
 button:hover {
   background: linear-gradient(45deg, #e91e63, #f44336);
@@ -209,3 +211,4 @@ button:hover {
     width: 100px;
   }
 }
+

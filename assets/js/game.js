@@ -367,16 +367,19 @@ const shootBullet = () => {
             bulletDisplay.onclick = reloadBullets;
             
             const hint = document.createElement('div');
-            hint.textContent = '(Hover over the reload word to reload)';
+            hint.textContent = "Place your hand\n over 'reload' to refill.";
+            hint.style.whiteSpace = 'pre-line'; // Ensures line breaks are respected
             hint.style.fontSize = '12px';
             hint.style.color = 'orange';
             hint.style.position = 'absolute';
             hint.style.left = (bulletDisplay.offsetLeft) + 'px';
             hint.style.top = (bulletDisplay.offsetTop + bulletDisplay.offsetHeight + 15) + 'px';
             hint.id = 'hover-hint';
+            
             if (!document.getElementById('hover-hint')) {
                 document.body.appendChild(hint);
             }
+            
         } else {
             bulletDisplay.innerText = `Bullets: ${bulletCount}`;
             bulletDisplay.style.color = 'white';
@@ -625,36 +628,41 @@ recognition.onend = function() {
 
 function handleVoiceCommand(transcript) {
     if (onboardingActive) {
-        const onboardingCloseCommands = ["close", "stop", "end", "quit", "destroy", "exit", "next", "skip"];
-        if (onboardingCloseCommands.some(cmd => transcript.includes(cmd))) {
-            driverObj.destroy();
-        }
-        return;
+      const onboardingCloseCommands = ["close", "stop", "end", "quit", "destroy", "exit", "next", "skip"];
+      if (onboardingCloseCommands.some(cmd => transcript.includes(cmd))) {
+        driverObj.destroy();
+      }
+      return; // Ignore other commands during onboarding.
+    }
+    
+    // If the game is over, ignore "reload" and "reset" commands.
+    if (!gameActive && (transcript.includes("reload") || transcript.includes("reset"))) {
+      return;
     }
     
     const commands = {        
-        "reload": () => reloadBullets(),
-        "restart": () => window.restartGame(),
-        "play again": () => window.restartGame(),
-        "try again": () => window.restartGame(),
-        "reset": () => resetTimer(),
-        "home": () => (window.location.href = "./index.html"),
-        "back": () => (window.location.href = "./index.html"),
-        "menu": () => (window.location.href = "./index.html"),
-        "main": () => (window.location.href = "./index.html"),
-        "join": () => window.open("https://www.arteveldehogeschool.be/nl/opleidingen/bachelor/interactive-media-development", "_blank"),
-        "school": () => window.open("https://www.arteveldehogeschool.be/nl/opleidingen/bachelor/interactive-media-development", "_blank"),
-        "imd": () => window.open("https://www.arteveldehogeschool.be/nl/opleidingen/bachelor/interactive-media-development", "_blank")
+      "reload": () => reloadBullets(),
+      "restart": () => window.restartGame(),
+      "play again": () => window.restartGame(),
+      "try again": () => window.restartGame(),
+      "reset": () => resetTimer(),
+      "home": () => (window.location.href = "./index.html"),
+      "back": () => (window.location.href = "./index.html"),
+      "menu": () => (window.location.href = "./index.html"),
+      "main": () => (window.location.href = "./index.html"),
+      "join": () => window.open("https://www.arteveldehogeschool.be/nl/opleidingen/bachelor/interactive-media-development", "_blank"),
+      "school": () => window.open("https://www.arteveldehogeschool.be/nl/opleidingen/bachelor/interactive-media-development", "_blank"),
+      "imd": () => window.open("https://www.arteveldehogeschool.be/nl/opleidingen/bachelor/interactive-media-development", "_blank")
     };
-
+  
     for (const [command, action] of Object.entries(commands)) {
-        if (transcript.includes(command)) {
-            action();
-            return;
-        }
+      if (transcript.includes(command)) {
+        action();
+        return;
+      }
     }
-}
-
+  }
+  
 /* ---------------------------
          Start Game
 --------------------------- */
