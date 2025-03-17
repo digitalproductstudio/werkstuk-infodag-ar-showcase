@@ -5,7 +5,7 @@ IMD AR Showcase is an interactive web application that utilizes **MediaPipe** an
 ## Features
 - **Hand Tracking Interaction**: Move your hand to interact with virtual elements.
 - **Ball Invader Game**: A fun game where you control the gameplay using your hand.
-- **Bubble Collection**: Collect different AR bubbles, each with unique interactions.
+- **Point at the bubble**: Point at different AR bubbles, each with unique interactions.
 - **Onboarding with Driver.js**: A step-by-step guide to introduce users to the experience.
 - **Fully Responsive**: Works seamlessly on all screen sizes and devices.
 
