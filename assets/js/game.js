@@ -386,6 +386,9 @@ const shootBullet = () => {
             bulletDisplay.style.textDecoration = 'underline';
             bulletDisplay.onclick = reloadBullets;
             
+
+            const gameContainer = document.getElementById('game-container');
+
             const hint = document.createElement('div');
             hint.textContent = "Flash a ✌️ to reload!";
             hint.style.whiteSpace = 'pre-line'; // Ensures line breaks are respected
@@ -406,7 +409,7 @@ const shootBullet = () => {
             
             // Append only if it doesn't already exist
             if (!document.getElementById('hover-hint')) {
-                document.body.appendChild(hint);
+                gameContainer.appendChild(hint);
             }
             
             // Add a keyframe animation for pulsing

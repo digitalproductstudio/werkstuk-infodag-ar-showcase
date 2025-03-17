@@ -59,33 +59,71 @@ const driverObj = window.driver.js.driver({
       portalActive = false, portalElement = null, portalTimeout = null,
       lastClickedBubble = null, clickCooldown = false;
   
+  // function onResults(results) {
+  //   const now = Date.now();
+  //   if (results.multiHandLandmarks?.length) {
+  //     handDetected = true; lastHandDetection = now;
+  //     const landmarks = results.multiHandLandmarks[0];
+  //     cursor.style.visibility = "visible";
+  //     cursor.style.opacity = "1";
+  //     let handX = (landmarks[0].x + landmarks[1].x + landmarks[5].x + landmarks[9].x + landmarks[17].x) / 5,
+  //         handY = (landmarks[0].y + landmarks[1].y + landmarks[5].y + landmarks[9].y + landmarks[17].y) / 5,
+  //         screenX = window.innerWidth * (1 - handX),
+  //         screenY = window.innerHeight * handY;
+  //     cursor.style.left = `${screenX}px`;
+  //     cursor.style.top = `${screenY}px`;
+  //     updateBlobPhysics(screenX, screenY);
+  //     let el = document.elementFromPoint(screenX, screenY);
+  //     if (el) {
+  //       if (el.id === "modal-close-btn") closeInfoModal();
+  //       else if (el.classList.contains("bubble")) handleBubbleClick(el.dataset.type);
+  //     }
+  //   } else if (now - lastHandDetection > handDetectionTimeout) {
+  //     handDetected = false;
+  //     cursor.style.visibility = "hidden";
+  //     cursor.style.opacity = "0";
+  //     if (portalActive) cleanupPortalEffect();
+  //     if (blobsActive) cleanupBlobPhysics();
+  //   }
+  // }
+
+
   function onResults(results) {
     const now = Date.now();
     if (results.multiHandLandmarks?.length) {
-      handDetected = true; lastHandDetection = now;
-      const landmarks = results.multiHandLandmarks[0];
-      cursor.style.visibility = "visible";
-      cursor.style.opacity = "1";
-      let handX = (landmarks[0].x + landmarks[1].x + landmarks[5].x + landmarks[9].x + landmarks[17].x) / 5,
-          handY = (landmarks[0].y + landmarks[1].y + landmarks[5].y + landmarks[9].y + landmarks[17].y) / 5,
-          screenX = window.innerWidth * (1 - handX),
-          screenY = window.innerHeight * handY;
-      cursor.style.left = `${screenX}px`;
-      cursor.style.top = `${screenY}px`;
-      updateBlobPhysics(screenX, screenY);
-      let el = document.elementFromPoint(screenX, screenY);
-      if (el) {
-        if (el.id === "modal-close-btn") closeInfoModal();
-        else if (el.classList.contains("bubble")) handleBubbleClick(el.dataset.type);
-      }
+        handDetected = true;
+        lastHandDetection = now;
+        const landmarks = results.multiHandLandmarks[0];
+
+        cursor.style.visibility = "visible";
+        cursor.style.opacity = "1";
+
+        // Use index finger tip (landmark 8)
+        let handX = landmarks[8].x;
+        let handY = landmarks[8].y;
+
+        let screenX = window.innerWidth * (1 - handX);
+        let screenY = window.innerHeight * handY;
+
+        cursor.style.left = `${screenX}px`;
+        cursor.style.top = `${screenY}px`;
+
+        updateBlobPhysics(screenX, screenY);
+
+        let el = document.elementFromPoint(screenX, screenY);
+        if (el) {
+            if (el.id === "modal-close-btn") closeInfoModal();
+            else if (el.classList.contains("bubble")) handleBubbleClick(el.dataset.type);
+        }
     } else if (now - lastHandDetection > handDetectionTimeout) {
-      handDetected = false;
-      cursor.style.visibility = "hidden";
-      cursor.style.opacity = "0";
-      if (portalActive) cleanupPortalEffect();
-      if (blobsActive) cleanupBlobPhysics();
+        handDetected = false;
+        cursor.style.visibility = "hidden";
+        cursor.style.opacity = "0";
+        if (portalActive) cleanupPortalEffect();
+        if (blobsActive) cleanupBlobPhysics();
     }
-  }
+}
+
   
   function updateBlobPhysics(x, y) {
     if (!blobsActive) return;
