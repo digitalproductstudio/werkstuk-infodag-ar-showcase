@@ -10,7 +10,7 @@ const driverObj = window.driver.js.driver({
     steps: [
         { popover: { 
             title: "Welcome to Ball Invader", 
-            description: "Use your voice to Reload by saying Reload, Restart or Play Again to play it Again, Reset to put the timer back in 20, Say Home to go back to the main show page, Say IMD or Join to go to the IMD website. You can also hover your hand over the 'Reload' text to reload bullets!", 
+            description: "Use your voice to Reload by saying Reload, Restart or Play Again to play it Again, Reset to put the timer back in 30, Say Home to go back to the main show page, Say IMD or Join to go to the IMD website. You can also hover your hand over the 'Reload' text to reload bullets, close your hand to fire multi-directional bullets, enjoy!", 
             side: "top", 
             align: "start" 
         } }
